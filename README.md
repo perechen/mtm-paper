@@ -37,8 +37,8 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 \|  
 \|\_\_\_\_\_`/dump_features`: vectorized data for SHAP analysis, produced by `03_data_for_distinctive.R`  
 \|  
-\|\_\_\_\_\_`prepared/` prepd dataset for metrical form based analysis, produced in`01_main_analysis.R`  
+\|\_\_\_\_\_`/prepared` prepd dataset for metrical form based analysis, produced in`01_main_analysis.R`  
 \|  
-\|\_\_\_\_\_`prepared_foot/` prepd dataset for foot based analysis, produced in `01_main_analysis.R`  
+\|\_\_\_\_\_`/prepared_foot` prepd dataset for foot based analysis, produced in `01_main_analysis.R`  
 
 Actually it is possible to run everything here on your own. The whole data dump [is available](https://data.ucl.cas.cz/s/E2d5EQ9QeXpJbfw). 
