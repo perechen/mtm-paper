@@ -1,0 +1,6 @@
+"amphibrach" "anapest" "dactyl" "iamb" "trochee"
+"amphibrach" 42 8 7 6 4
+"anapest" 3 19 1 5 0
+"dactyl" 2 6 42 5 5
+"iamb" 2 13 0 34 4
+"trochee" 1 4 0 0 37

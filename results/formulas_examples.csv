@@ -1,0 +1,31 @@
+label,pos_syl,lang,n,p,token
+iamb_4,P1 N2 N2 V3,cs,636,0.242,jež závrať smysly omámí
+iamb_4,J1 N2 N2 V3,cs,604,0.23,až obr obra porazil
+iamb_4,A3 N2 N3,cs,599,0.228,celému světu svobodu
+iamb_4,P1 A2 N2 V3,cs,503,0.192,své bílé vlnky kolíbej
+iamb_4,V3 N2 N3,cs,465,0.177,nutíme hroudu zázraku
+trochee_4,A2 N2 A2 N2,cs,1522,0.461,tmavým lemem příkrých břehů
+trochee_4,A4 N3,cs,1242,0.376,neširokém údolu
+trochee_4,V3 P1 A2 N2,cs,1194,0.362,uzraje něm tichá láska
+trochee_4,V3 P1 N2 N2,cs,905,0.274,rozloží svých větví krásu
+trochee_4,N2 N2 N2 N2,cs,868,0.263,dvorci starých buků stínu
+iamb_4,P1 V1 ART1 A2 N3,de,84,0.198,sie webt die blaue schleierluft
+iamb_4,ART1 A4 N3,de,68,0.16,der feierlichen sommernacht
+iamb_4,R1 P2 A2 N3,de,55,0.129,von keinem goldnen sonnenblick
+iamb_4,ART1 N3 ART1 N3,de,54,0.127,die republik die republik
+iamb_4,R1 A4 N3,de,45,0.106,auf leichtbewegtem wellenmeer
+trochee_4,R1 ART1 A2 N3,de,108,0.338,auf der liebe zauberreich
+trochee_4,R1 ART1 A2 N4,de,108,0.338,auf den leisen atemzügen
+trochee_4,A2 N2 A2 N2,de,99,0.31,reine zimmer klare fenster
+trochee_4,R1 ART1 N2 A2 N2,de,90,0.282,zu des walzers wilden takten
+trochee_4,N4 N4,de,72,0.226,rechnungsräte revisoren
+iamb_4,V3 A3 S2,ru,690,0.299,помянем дерптское житье
+iamb_4,S3 A3 S2,ru,595,0.258,слезами полные глаза
+iamb_4,V3 A3 S3,ru,559,0.243,журчали звонкими струями
+iamb_4,V2 A4 S2,ru,500,0.217,была российскою княжной
+iamb_4,S3 A3 S3,ru,406,0.176,добыча жалкая расчетов
+trochee_4,A5 S2,ru,559,0.594,неизведанным путем
+trochee_4,A5 S3,ru,363,0.386,восходящее светило
+trochee_4,S2 A3 S2,ru,316,0.336,тайну пламенной слезы
+trochee_4,S2 A3 V2,ru,282,0.3,места лобного стоит
+trochee_4,V4 S3,ru,281,0.299,составляют хоровод

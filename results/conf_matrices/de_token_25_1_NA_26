@@ -1,0 +1,6 @@
+"iamb_3" "iamb_4" "iamb_5" "trochee_4" "trochee_5"
+"iamb_3" 31 0 1 16 1
+"iamb_4" 0 31 7 9 8
+"iamb_5" 8 12 32 1 11
+"trochee_4" 8 1 0 13 19
+"trochee_5" 3 6 10 11 11

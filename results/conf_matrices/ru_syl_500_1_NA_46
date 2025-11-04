@@ -1,0 +1,18 @@
+"amphibrach_2" "amphibrach_3" "amphibrach_4" "anapest_2" "anapest_3" "anapest_4" "dactyl_3" "dactyl_4" "dactyl_6" "iamb_3" "iamb_4" "iamb_5" "iamb_6" "trochee_3" "trochee_4" "trochee_5" "trochee_6"
+"amphibrach_2" 30 2 0 0 0 0 0 0 6 0 0 0 0 0 0 0 3
+"amphibrach_3" 7 20 2 0 0 0 0 0 0 0 0 0 0 0 0 0 13
+"amphibrach_4" 0 2 42 0 0 0 0 0 0 0 0 0 0 11 0 5 0
+"anapest_2" 0 0 0 36 0 7 0 0 0 0 0 0 0 0 0 4 0
+"anapest_3" 0 0 0 0 50 0 0 0 0 0 0 0 0 0 0 0 0
+"anapest_4" 0 0 0 14 0 43 0 0 0 0 0 0 0 0 0 1 0
+"dactyl_3" 0 0 0 0 0 0 40 6 0 0 0 0 0 0 0 0 0
+"dactyl_4" 0 0 0 0 0 0 8 44 0 0 0 0 0 0 0 0 0
+"dactyl_6" 5 0 0 0 0 0 0 0 44 0 0 0 0 0 0 0 0
+"iamb_3" 0 0 0 0 0 0 0 0 0 30 0 8 1 0 6 0 0
+"iamb_4" 0 0 0 0 0 0 0 0 0 0 34 0 2 5 8 8 0
+"iamb_5" 0 0 0 0 0 0 0 0 0 13 0 32 6 0 0 0 0
+"iamb_6" 8 0 0 0 0 0 0 0 0 4 2 10 40 0 0 0 0
+"trochee_3" 0 0 0 0 0 0 2 0 0 0 0 0 0 34 0 0 1
+"trochee_4" 0 0 0 0 0 0 0 0 0 3 7 0 0 0 31 0 0
+"trochee_5" 0 0 6 0 0 0 0 0 0 0 7 0 0 0 5 32 0
+"trochee_6" 0 26 0 0 0 0 0 0 0 0 0 0 1 0 0 0 33
