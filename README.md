@@ -6,7 +6,7 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 
 - `00_scripts.R`. Collects useful functions that we keep using through the work;
 - `01_main_analysis.R` Prepares data and produces all main figures of the paper;
-- `02_RF_classification.R` Classification pipline;
+- `02_RF_classification.R` Classification pipeline;
 - `03_data_for_distinctive.R` Prepares datasets for SHAP analysis
 
 
