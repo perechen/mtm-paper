@@ -22,7 +22,7 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 ## 📁 /results
 
 \|  
-\|\_\_\_\_\_`/conf_matrcies`: individual confusion matrices from RF classification;  
+\|\_\_\_\_\_`/conf_matricies`: individual confusion matrices from RF classification;  
 \|  
 \|\_\_\_\_\_`formulas_examples.csv`: Table 2 of the paper;  
 \|  
