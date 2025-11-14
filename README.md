@@ -13,7 +13,7 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 ## 📁 /plots
 
 \|  
-\|\_\_\_\_\_`/CM_plots`: has all confusion matrices heatmaps  
+\|\_\_\_\_\_`/CM_plots/`: has all confusion matrices heatmaps  
 \|  
 \|\_\_\_\_\_`/paper`: main body and appendix figures  
 \|  
