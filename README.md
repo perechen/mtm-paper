@@ -12,32 +12,23 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 
 ## 📁 /plots
 
-\|  
-\|\_\_\_\_\_`/CM_plots/`: has all confusion matrices heatmaps  
-\|  
-\|\_\_\_\_\_`/paper`: main body and appendix figures  
-\|  
-\|\_\_\_\_\_`/shap`: has a variety of SHAP plots + `shap.ipynb` that produces them
+- `/CM_plots/`: has all confusion matrices heatmaps  
+- `/paper`: main body and appendix figures  
+- `/shap`: has a variety of SHAP plots + `shap.ipynb` that produces them
+
 
 ## 📁 /results
 
-\|  
-\|\_\_\_\_\_`/conf_matricies`: individual confusion matrices from RF classification;  
-\|  
-\|\_\_\_\_\_`formulas_examples.csv`: Table 2 of the paper;  
-\|  
-\|\_\_\_\_\_`res_foot_kfold.csv` Classification results by foot type;  
-\|  
-\|\_\_\_\_\_`res_form_kfold.csv` Classification results by metrical form;  
+- `/conf_matricies`: individual confusion matrices from RF classification;  
+- `formulas_examples.csv`: Table 2 of the paper;  
+- `res_foot_kfold.csv` Classification results by foot type;  
+- `res_form_kfold.csv` Classification results by metrical form;  
 
 
 ##  📁 [/data](https://data.ucl.cas.cz/s/6sPPq7scKt6CwEp) 
-\|  
-\|\_\_\_\_\_`/dump`: the original data dump from PoeTree;  
-\|  
-\|\_\_\_\_\_`/dump_features`: vectorized data for SHAP analysis, produced by `03_data_for_distinctive.R`  
-\|  
-\|\_\_\_\_\_`/prepared` prepd dataset for metrical form based analysis, produced in`01_main_analysis.R`  
-\|  
-\|\_\_\_\_\_`/prepared_foot` prepd dataset for foot based analysis, produced in `01_main_analysis.R`  
+
+- `/dump`: the original data dump from PoeTree;  
+- `/dump_features`: vectorized data for SHAP analysis, produced by `03_data_for_distinctive.R`  
+- `/prepared` prepd dataset for metrical form based analysis, produced in`01_main_analysis.R`  
+- `/prepared_foot` prepd dataset for foot based analysis, produced in `01_main_analysis.R`  
 
