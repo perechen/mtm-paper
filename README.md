@@ -14,8 +14,9 @@ NB! To reproduce the analysis, `data/` folder is required in the root of the rep
 
 - `/CM_plots/`: has all confusion matrices heatmaps  
 - `/paper`: main body and appendix figures  
-- `/shap`: has a variety of SHAP plots + `shap.ipynb` that produces them
-
+- `/shap`: has a variety of SHAP plots + `shap.ipynb` that produces them;
+  - `by_feature` folders hold SHAP analysis made separately for each feature;
+  - `/concatenated_features` shows analysis for concatenated vectors.
 
 ## 📁 /results
 
