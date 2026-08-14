@@ -12,6 +12,14 @@ library(scales)
 # scripts
 source("00_scripts.R")
 
+# okabe-ito for (some) plots not used in the paper
+oito <- c(
+ "#0072B2",
+ "#E69F00",
+ "#009E73",
+ "#D55E00"
+)
+
 ########################
 ### data preparation ###
 ########################
@@ -20,8 +28,13 @@ source("00_scripts.R")
 min_lines = 5000 ## filter meters by size # 1000k x 5 samples
 
 fs <- c("data/dump/cs/", "data/dump/de", "data/dump/ru/")
-#file_names <- c("data/prepared_foot/cs_lines.tsv", "data/prepared_foot/de_lines.tsv", "data/prepared_foot/ru_lines.tsv")
-file_names <- c("data/prepared/cs_lines.tsv", "data/prepared/de_lines.tsv", "data/prepared/ru_lines.tsv")
+langs <- c("cs", "de", "ru")
+
+## both datasets are built from the same lines, they only differ in how meters are selected:
+## form-based analysis keeps forms that are large enough on their own ("data/prepared"),
+## foot-based analysis keeps every form of a foot type that is large enough ("data/prepared_foot")
+out_dirs <- c(form="data/prepared", foot="data/prepared_foot")
+sel_cols <- c(form="label",         foot="label_foot")
 
 ## iterate over folders
 for(i in 1:3) {
@@ -46,16 +59,7 @@ if(i == 1 | i == 2) {
   cs_df <- cs_df %>% filter(born >= 1800, born <= 1900)
 }
 
-## filter meters
-selection <- cs_df %>%
-  count(label,line_id) %>%
-  count(label,sort=T) %>% 
-  filter(n > min_lines)
-
-## apply selection to the larger table
-cs_df <- cs_df %>% filter(label %in% selection$label)
-
-### German POS simplification ### 
+### German POS simplification ###
 
 if(i == 2) {
 de_pos <- read_csv("data/german_simplification.csv")
@@ -71,7 +75,26 @@ lines_df <- cs_df %>%
             pos=paste(pos,collapse=" "),
             pos_syl=paste(pos_syl, collapse=" "))
 
-write_tsv(lines_df,file = file_names[i])
+## write out both analyses
+for(a in names(out_dirs)) {
+
+  sel_col <- sym(sel_cols[[a]])
+
+  ## filter meters
+  selection <- cs_df %>%
+    count(!!sel_col, line_id) %>%
+    count(!!sel_col, sort=T) %>%
+    filter(n > min_lines) %>%
+    pull(!!sel_col)
+
+  dir.create(out_dirs[[a]], showWarnings = FALSE, recursive = TRUE)
+
+  ## apply selection to the cast table
+  lines_df %>%
+    filter(!!sel_col %in% selection) %>%
+    write_tsv(file = file.path(out_dirs[[a]], paste0(langs[i], "_lines.tsv")))
+
+}
 }
 
 ########################
@@ -146,12 +169,7 @@ s <- sample_lines(cs_df,n_lines = 100,n_samples = 40,label = "foot")
 d <- vectorizer(s,mff = NA,ngram = 1,ftr = "syl",scale=F)
 
 ### 4 meters by word length
-#oito <- c(
-#  "#0072B2",
-#  "#E69F00",
-#  "#009E73",
-#  "#D55E00"
-#)
+
 
 p2 <- draw_scatter(d,xpos = 1,ypos = 2,plt=plt[c(3,5,4,6)],filter = F) + 
   labs(x="Monosyllables",y="Disyllables",title = "b.")
@@ -564,32 +582,32 @@ lang_labels <- c(
   "ru" = "Russian"
 )
 
-p1 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
-  group_by(lang,feature,sample_size,ngram) %>%
-  summarize(lo=mean(acc) - IQR(acc),
-            hi=mean(acc) + IQR(acc),
-    #lo=quantile(acc,0.025),
-            #hi=quantile(acc,0.975),
-            acc=mean(acc)) %>% 
-  mutate(hi=ifelse(hi > 1, 1, hi),
-         lo=ifelse(lo < 0, 0, lo)) %>%
-  ggplot(aes(sample_size, acc)) + 
-  #geom_errorbar(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
-  geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
-  geom_line(aes(linetype=ngram,color=feature),linewidth=0.5) + 
-  facet_wrap(~lang,labeller = as_labeller(lang_labels)) + 
-  labs(x=NULL,y="Accuracy",title = "a. Classifying by foot type (2-5 classes)") + 
-  scale_color_paletteer_d("basetheme::clean") + 
- # scale_color_manual(values=oito) +
-  theme_minimal() + 
-  geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
-  theme(strip.text = element_text(size=14),
-        plot.background = element_rect(fill="white",color=NA),
-        plot.title = element_text(size=10)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.1)) + guides(linetype="none", color="none") 
+# p1 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
+#   group_by(lang,feature,sample_size,ngram) %>%
+#   summarize(lo=mean(acc) - IQR(acc),
+#             hi=mean(acc) + IQR(acc),
+#     #lo=quantile(acc,0.025),
+#             #hi=quantile(acc,0.975),
+#             acc=mean(acc)) %>% 
+#   mutate(hi=ifelse(hi > 1, 1, hi),
+#          lo=ifelse(lo < 0, 0, lo)) %>%
+#   ggplot(aes(sample_size, acc)) + 
+#   #geom_errorbar(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
+#   geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
+#   geom_line(aes(linetype=ngram,color=feature),linewidth=0.5) + 
+#   facet_wrap(~lang,labeller = as_labeller(lang_labels)) + 
+#   labs(x=NULL,y="Accuracy",title = "a. Classifying by foot type (2-5 classes)") + 
+#   scale_color_paletteer_d("basetheme::clean") + 
+#  # scale_color_manual(values=oito) +
+#   theme_minimal() + 
+#   geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
+#   theme(strip.text = element_text(size=14),
+#         plot.background = element_rect(fill="white",color=NA),
+#         plot.title = element_text(size=10)) +
+#   scale_y_continuous(breaks = seq(0,1,by=0.1)) + guides(linetype="none", color="none") 
 
-p1
-ggsave(p1,file="plots/frontiers/res_meter.png",width = 8,height = 3)
+# p1
+# ggsave(p1,file="plots/frontiers/res_meter.png",width = 8,height = 3)
 
 
 p1 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
@@ -620,23 +638,24 @@ xlines <- tibble(lang=c("cs", "de", "ru"),
 
 
 ## classification by meter
-p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
-  group_by(lang,feature,sample_size,ngram) %>%
-  summarize(lo=quantile(acc,0.025),
-            hi=quantile(acc,0.975),
-            acc=mean(acc)) %>% 
-  ggplot(aes(sample_size, acc)) + 
-  geom_line(aes(linetype=ngram,color=feature),linewidth=0.5) + 
-  #  geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram)),fill="grey", alpha=0.3) +
-  facet_wrap(~lang,labeller = as_labeller(c("Czech", "German", "Russian"))) + 
-  labs(x="Sample size (lines)",y="Accuracy",title = "b. Classifying by metrical form (5-17 classes)") + 
-# scale_color_paletteer_d("basetheme::clean") + 
-  scale_color_manual(values=oito) +
-  theme_minimal() + 
-  geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
-  theme(strip.text = element_blank(),
-        plot.background = element_rect(fill="white",color=NA,),plot.title = element_text(size=10),legend.position = "bottom") +
-  scale_y_continuous(breaks = seq(0,1,by=0.1))
+
+# p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
+#   group_by(lang,feature,sample_size,ngram) %>%
+#   summarize(lo=quantile(acc,0.025),
+#             hi=quantile(acc,0.975),
+#             acc=mean(acc)) %>% 
+#   ggplot(aes(sample_size, acc)) + 
+#   geom_line(aes(linetype=ngram,color=feature),linewidth=0.5) + 
+#   #  geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram)),fill="grey", alpha=0.3) +
+#   facet_wrap(~lang,labeller = as_labeller(c("Czech", "German", "Russian"))) + 
+#   labs(x="Sample size (lines)",y="Accuracy",title = "b. Classifying by metrical form (5-17 classes)") + 
+# # scale_color_paletteer_d("basetheme::clean") + 
+#   scale_color_manual(values=oito) +
+#   theme_minimal() + 
+#   geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
+#   theme(strip.text = element_blank(),
+#         plot.background = element_rect(fill="white",color=NA,),plot.title = element_text(size=10),legend.position = "bottom") +
+#   scale_y_continuous(breaks = seq(0,1,by=0.1))
 
 
 p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
@@ -825,12 +844,12 @@ cm_ru <- plots_ru[[1]] / plots_ru[[2]] / plots_ru[[3]] / plots_ru[[4]] / plots_r
 
 ggsave("plots/CM_plots/RU_foot.png",width = 10,height = 20)
 
-ggsave("plots/paper/Appendix_Figure_3b_ru.pdf",
+ggsave("plots/paper/Appendix_Figure_3c_ru.pdf",
        plot=cm_ru, width = 20,height = 32,dpi=1200)
 
 cm_ru_grey <- (plots_ru[[1]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[2]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[3]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[4]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[5]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[6]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[7]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[8]] + scale_fill_gradient(low="grey15",high="grey90"))
 
-ggsave("plots/paper/Appendix_Figure_3b_ru_GREY.pdf",
+ggsave("plots/paper/Appendix_Figure_3c_ru_GREY.pdf",
        plot=cm_ru_grey, width = 20,height = 32,dpi=1200)
 
 
@@ -846,10 +865,17 @@ cm_de <- plots_de[[1]] / plots_de[[2]] / plots_de[[3]] / plots_de[[4]] / plots_d
 
 ggsave("plots/CM_plots/DE_foot.png",plot = cm_de, width = 10,height = 20)
 
-ggsave("plots/paper/Appendix_Figure_3c_de.pdf",
+ggsave("plots/paper/Appendix_Figure_3b_de.pdf",
        plot=cm_de, width = 20,height = 32,dpi=1200)
 
 cm_de_grey <- (plots_de[[1]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[2]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[3]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[4]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[5]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[6]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[7]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[8]] + scale_fill_gradient(low="grey15",high="grey90"))
 
-ggsave("plots/paper/Appendix_Figure_3b_ru_GREY.pdf",
+ggsave("plots/paper/Appendix_Figure_3b_de_GREY.pdf",
        plot=cm_de_grey, width = 20,height = 32,dpi=1200)
+
+
+######################
+### session record ###
+######################
+
+write_session_info("01_main_analysis")

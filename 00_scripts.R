@@ -1,3 +1,27 @@
+###################
+### bookkeeping ###
+###################
+
+## records R version, OS and attached packages of the session that produced the outputs
+## call it at the END of a script, when everything it needs is attached
+write_session_info <- function(script) {
+
+  dir.create("session_info", showWarnings = FALSE)
+
+  ## sessioninfo also reports where each package came from (CRAN / Bioconductor / GitHub)
+  info <- if(requireNamespace("sessioninfo", quietly = TRUE)) {
+    capture.output(sessioninfo::session_info())
+  } else {
+    capture.output(sessionInfo())
+  }
+
+  writeLines(c(paste("# script:", script),
+               paste("# run:   ", format(Sys.time(), tz="UTC", usetz=TRUE)),
+               "",
+               info),
+             file.path("session_info", paste0(script, ".txt")))
+}
+
 ################
 ### sampler ####
 ################
@@ -226,12 +250,13 @@ rf_kfold <- function(df,d,fold=0.2,n_folds=25,iter=i) {
   
   }
   
-  cm_macro %>% write.table(file=paste0("results/conf_matrices/", 
+  ## NB: matrices are named by analysis_t (NA / foot), which is what 01_main_analysis.R reads back
+  cm_macro %>% write.table(file=paste0("results/conf_matrices/",
                                        langs[c], "_",
                                        f, "_",
                                        n, "_",
                                        ng, "_",
-                                       a_type, "_",
+                                       analysis_t, "_",
                                        iter))
   
   cm0 <- confusionMatrix(cm_macro,mode = "prec_recall")
@@ -260,59 +285,6 @@ plt <- c(
 )
 
 
-draw_tree_meters <- function(x,is_dtm=T,labels,groupings,hnode=NA, pal=2,col=1,skip=1,ord=c(1,2)) {
-  dm <- as.matrix(x)
-  if(is_dtm) {
-    dm <- philentropy::JSD(as.matrix(x))
-  } 
-  
-  
-  
-  
-  ## tree object
-  dm <- dm  %>% 
-    `rownames<-`(labels) %>% # reset rownames
-    as.dist() %>% # to dist object
-    hclust(method="ward.D2") %>%
-    ape::as.phylo()
-  
-  ## groups
-  tree <- groupOTU(dm,groupings)
-  
-  plot=ggtree(tree,aes(color=group),layout="circular",size=1) 
-  plot$data <- plot$data  %>%
-    mutate(class = str_remove_all(label, "_.*?$"),
-           label = str_remove_all(label, " .*?$"), # get class labels
-           group=str_replace(group, "0", "A")) 
-  #  left_join(trans, by="class")  %>% # translations
-  root <- plot$data %>% filter(parent==node) %>% pull(node)
-  print(root)
-  
-  col_seq <- c(5,2,1)
-  ## to highlight the binary split
-  if(is.na(hnode) %>% unique()) {
-    high_nodes <- c(root+1,root+2)
-    d <- data.frame(node=high_nodes, foot=c("ternary", "binary"))
-    pal <- paletteer_d("beyonce::X2")[col_seq[ord]]
-  } else {
-    # custom node clust
-    high_nodes <- hnode
-    d <- data.frame(node=high_nodes, foot=LETTERS[1:length(hnode)])
-    pal <- paletteer_d("beyonce::X2")[col]
-  }
-  
-  
-  p <- plot +
-    geom_highlight(data=d,aes(node=node, fill=foot),type="auto",alpha=0.3) +
-    geom_tiplab(aes(label=label),hjust=-.1,size=3) + 
-    guides(color="none",fill="none") +
-    scale_fill_manual(values=pal) +
-    scale_color_manual(values=paletteer_d("beyonce::X2")[-skip]) 
-  
-  return(p)
-  
-  
-} 
 draw_scatter <- function(df, xpos, ypos, plt,filter=T) {
   
   tibble(x=df[,xpos],

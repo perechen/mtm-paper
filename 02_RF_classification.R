@@ -5,7 +5,6 @@ library(stringi)
 
 # calculations
 library(doParallel)
-library(philentropy)
 library(randomForest)
 library(caret)
 
@@ -31,9 +30,11 @@ packages_used <- c("tidyverse", "doParallel", "tidytext", "randomForest", "strin
 ##################
 
 
-corp <- list.files("data/prepared",full.names = T)
-#  corp <- corp[-1]
-analysis_t <- NA # "NA" for meter-based analysis
+## each analysis has its own corpus (see data preparation in 01_main_analysis.R) and
+## its own label handling: NA keeps metrical forms, "foot" collapses them in sample_range()
+corp_dirs <- c(form="data/prepared", foot="data/prepared_foot")
+label_t <- list(form=NA, foot="foot")
+
 langs <- c("cs", "de","ru")
 #langs <- langs[-1]
 #cs,pos_syl,1000,2,1
@@ -44,15 +45,19 @@ ngram <- c(1,2)
 features <- c("token", "pos", "syl", "pos_syl")
 
 
+## analysis type
+for(a_type in names(corp_dirs)) {
+
+analysis_t <- label_t[[a_type]]
+corp <- list.files(corp_dirs[[a_type]],full.names = T)
+#  corp <- corp[-1]
 
 ## corpus
 for(c in 1:length(corp)) {
-  
-  a_type <- ifelse(is.na(analysis_t), "form", "foot")
-  
-  df <- read_tsv(corp[c]) %>% 
+
+  df <- read_tsv(corp[c]) %>%
     mutate(syl= str_remove_all(pos_syl, "[A-Z]"))
-  
+
   foreach(i=1:100,
           .packages = packages_used) %dopar%  { 
             
@@ -122,5 +127,15 @@ for(c in 1:length(corp)) {
             }
           }
 }
+}
+
+stopCluster(my_cluster)
+
+
+######################
+### session record ###
+######################
+
+write_session_info("02_RF_classification")
 
 
