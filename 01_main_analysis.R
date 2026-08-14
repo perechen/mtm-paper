@@ -80,38 +80,40 @@ write_tsv(lines_df,file = file_names[i])
 
 cs_df <- read_tsv("data/prepared/cs_lines.tsv")  %>% 
   mutate(syl= str_remove_all(pos_syl, "[A-Z]"))
+
 # CS lines
-nrow(cs_df)
+paste("Number of lines, CS:", nrow(cs_df))
 # CS number of foot types
 cs_df$label_foot %>% table() %>% sort(decreasing = T)
-cs_df$label_foot %>% table() %>% length()
+paste("Number of foot types, CS:", cs_df$label_foot %>% table() %>% length())
 # CS number of meters
 cs_df$label %>% table() %>% sort(decreasing = T)
-cs_df$label %>% table() %>% length()
+paste("Number of meters, CS:",cs_df$label %>% table() %>% length())
 
 
 de_df <- read_tsv("data/prepared/de_lines.tsv")  %>% 
   mutate(syl= str_remove_all(pos_syl, "[A-Z]"))
+
 # DE lines
-nrow(de_df)
+paste("Number of lines, DE:", nrow(de_df))
 # DE number of foot types
 de_df$label_foot %>% table() %>% sort(decreasing = T)
-de_df$label_foot %>% table() %>% length()
+paste("Number of foot types, DE:", de_df$label_foot %>% table() %>% length())
 # DE number of meters
 de_df$label %>% table() %>% sort(decreasing = T)
-de_df$label %>% table() %>% length()
+paste("Number of meters, DE:", de_df$label %>% table() %>% length())
 
 
 ru_df <- read_tsv("data/prepared/ru_lines.tsv")  %>% 
   mutate(syl= str_remove_all(pos_syl, "[A-Z]"))
 # RU lines
-nrow(ru_df)
+paste("Number of lines, RU:", nrow(ru_df))
 # RU number of foot types
 ru_df$label_foot %>% table() %>% sort(decreasing = T)
-ru_df$label_foot %>% table() %>% length()
+paste("Number of foot types, RU:", ru_df$label_foot %>% table() %>% length())
 # RU number of meters
 ru_df$label %>% table() %>% sort(decreasing = T)
-ru_df$label %>% table() %>% length()
+paste("Number of meters, RU:", ru_df$label %>% table() %>% length())
 
 
 ####################################
@@ -144,11 +146,20 @@ s <- sample_lines(cs_df,n_lines = 100,n_samples = 40,label = "foot")
 d <- vectorizer(s,mff = NA,ngram = 1,ftr = "syl",scale=F)
 
 ### 4 meters by word length
-p2 <- draw_scatter(d,xpos = 1,ypos = 2,plt=plt[c(3,5,4,6)],filter = F) + labs(x="Monosyllables",y="Disyllables",title = "b.")
+#oito <- c(
+#  "#0072B2",
+#  "#E69F00",
+#  "#009E73",
+#  "#D55E00"
+#)
+
+p2 <- draw_scatter(d,xpos = 1,ypos = 2,plt=plt[c(3,5,4,6)],filter = F) + 
+  labs(x="Monosyllables",y="Disyllables",title = "b.")
+
 
 ### sample data for iamb vs. trochee
 set.seed(119)
-s <- sample_lines(cs_df,n_lines = 100,n_samples = 60,label = "foot")
+s <- sample_lines(cs_df,n_lines = 100,n_samples = 100,label = "foot")
 d <- vectorizer(s,mff = NA,ngram = 1,ftr = "token",scale=F)
 
 ### dotplot!
@@ -156,15 +167,33 @@ p1<-tibble(x=d[,1],
            label0=rownames(d)) %>% 
   mutate(label=str_remove(label0,"_.*")) %>% 
   filter(label %in% c("iamb", "trochee")) %>% 
-  ggplot(aes(x, fill=label)) + geom_dotplot(binwidth=0.0025,stackgroups = T, binpositions = "all") + 
-  scale_fill_manual(values=plt[c(4,6)]) + theme_minimal() + #+ ylim(0,0.25)  + 
-  theme(axis.title = element_text(size=10), plot.title = element_text(size=14), axis.text.y=element_blank(), plot.background = element_rect(fill="white",color=NA),legend.title=element_blank()) + 
+  ggplot(aes(x, fill=label)) + geom_dotplot(binwidth=0.002,stackgroups = T, binpositions = "all") + 
+  scale_fill_manual(values=plt[c(4,6)]) + 
+#  scale_fill_manual(values=oito[c(3,4)]) + 
+  theme_minimal() + #+ ylim(0,0.25)  + 
+  theme(axis.title = element_text(size=12), plot.title = element_text(size=14), axis.text.y=element_blank(), plot.background = element_rect(fill="white",color=NA),legend.title=element_blank()) + 
   labs(x="Frequency of 'a' ('and') ", y=NULL, title="a.")  + guides(fill="none")
+p1
+figure1 <- p1+p2 + plot_layout(widths=c(1.25,1))
 
+### Fig 1 colored
+ggsave("plots/paper/Figure_1.pdf",
+       plot = figure1,
+       width = 10,
+       height = 5,
+       dpi = 1200)
 
-p1+p2
-ggsave("plots/paper/Figure_1.png",width = 10,height = 5,dpi = 300)
+p1g <- p1 + scale_fill_grey() + guides(fill= "legend") + theme(legend.position = "top")
+p2g <- p2 + scale_color_grey() + theme(legend.position = "top")
 
+figure1_grey <- p1g+p2g + plot_layout(widths=c(1.25,1))
+
+### Fig 1 greyscale
+ggsave("plots/paper/Figure_1_GREY.pdf",
+       plot = figure1_grey,
+       width = 10,
+       height = 5,
+       dpi = 1200)
 
 #################################################
 ### Appendix. Figure 1. POS / Stress patterns ###
@@ -193,7 +222,7 @@ de_labels <- tibble(pos=c("V", "T", "R", "P", "N", "J", "I","D","C", "ART","A"),
                     lab=c("Verb", "Particle", "Preposition", "Pronoun", "Noun", "Conjuction", "Interjection", "Adverb","Numeral","Article","Adjective")) %>% 
   mutate(lab=factor(lab,levels=rev(sort(unique(lab)))))
 
-pge <- unnested_2 %>%
+de_lbld <- unnested_2 %>%
   ungroup() %>% 
   count(pattern, nsyl, pos,syl_id) %>%
   filter(nsyl > 1, nsyl < 7, pos != "##", pos != "I" , pos != "PUNCT", pos != "R",pos != "T", pos!="C", pos != "J", pos != "ART", pos != "TRUNC", pos != "FM", pattern=="1", pos !="XY") %>% 
@@ -201,7 +230,9 @@ pge <- unnested_2 %>%
   group_by(nsyl,pos) %>%
   mutate(n=n/sum(n)) %>% 
   rename(stressed=n) %>%  
-  left_join(de_labels,by="pos") %>% 
+  left_join(de_labels,by="pos") 
+
+pde <- de_lbld %>%
   ggplot(aes(as.character(syl_id),lab, fill=stressed)) + 
   geom_tile() + 
   facet_wrap(~nsyl,scales = "free_x",nrow = 1) + 
@@ -212,7 +243,7 @@ pge <- unnested_2 %>%
   labs(x=NULL,y=NULL,title="a. German") 
 
 
-
+pde_grey <- pde + scale_fill_gradient(low="grey90",high="grey15")
 ### POS RU
 
 df_unnested <- ru_df %>% 
@@ -235,15 +266,20 @@ ru_labels <- tibble(pos=c("S", "A", "PRO", "V", "CONJ", "ADV", "PR","INTJ","SPRO
                     lab=c("Noun", "Adjective", "Pronoun", "Verb", "Conjuction", "Adverb", "Preposition", "Interjection","S-Pronoun","Particle","Adv-pronoun","A-Numeral", "Numeral")) %>% 
   mutate(lab=factor(lab,levels=rev(sort(unique(lab)))))
 
-pru <- unnested_ru %>%
+ru_lbld <- unnested_ru %>%
   mutate(pos=ifelse(str_detect(pos, "PRO"), "PRO", pos)) %>% 
   ungroup() %>% 
   count(pattern, nsyl, pos,syl_id) %>%
-  filter(nsyl > 1, nsyl < 7, pos != "##", pos != "COM", pattern!="0", !pos %in% c("PR", "CONJ", "PART", "NUM", "INTJ","ANUM")) %>% 
+  filter(nsyl > 1, nsyl < 7, 
+         pos != "##", pos != "COM", 
+         pattern!="0", 
+         !pos %in% c("PR", "CONJ", "PART", "NUM", "INTJ","ANUM")) %>% 
   group_by(nsyl,pos) %>%
   mutate(n=n/sum(n)) %>% 
   rename(stressed=n) %>%  
-  left_join(ru_labels,by="pos") %>% 
+  left_join(ru_labels,by="pos")
+
+pru <- ru_lbld %>% 
   ggplot(aes(as.character(syl_id)
              ,lab, fill=stressed)) + 
   geom_tile() + 
@@ -254,9 +290,26 @@ pru <- unnested_ru %>%
   scale_fill_viridis_c(option="F") +
   labs(x="n-th syllable",y=NULL,title="b. Russian") 
 
+pru_grey <- pru + scale_fill_gradient(low="grey90",high="grey15")
 
-pge / pru
-ggsave("plots/paper/Appendix_Figure_1.png",width = 9,height = 5)
+
+sfig1 <- pde / pru
+sfig1_grey <- pde_grey / pru_grey
+
+## colored
+ggsave("plots/paper/Appendix_Figure_1.pdf",
+       plot=sfig1,
+       width = 9,
+       height = 5,
+       dpi=1200)
+
+## greyscale
+ggsave("plots/paper/Appendix_Figure_1_GREY.pdf",
+       plot=sfig1_grey,
+       width = 9,
+       height = 5,
+       dpi=1200)
+
 
 
 ##########################################
@@ -432,7 +485,7 @@ ppr_cs <- ppr_to_trochee(cs_train,d2=df,la = "cs",n_tries = 1000,sample_size = 5
 ppr_ru <- ppr_to_trochee(ru_train,d2=df,la = "ru",n_tries = 1000,sample_size = 500,set_seed = 1989)
 
 
-tibble(ppr=unlist(ppr_de),
+sfig2 <-tibble(ppr=unlist(ppr_de),
        meter=c(rep("iamb4",1000),
                rep("trochee4",1000)),
        lang="de") %>%
@@ -451,6 +504,8 @@ tibble(ppr=unlist(ppr_de),
   theme(strip.text = element_text(size=14)) +
   scale_fill_manual(values=plt[c(6,4)]) +
   scale_color_manual(values=plt[c(6,4)]) + 
+#  scale_fill_manual(values=oito[c(3,4)]) +
+#  scale_color_manual(values=oito[c(3,4)]) + 
   labs(y="Perplexity",x=NULL,
        #title="Boostrapped median perplexity (Czech)",
        #subtitle="Iambic POS SYL language model, out-of-sample calculations, 10000 x 100 lines"
@@ -459,8 +514,19 @@ tibble(ppr=unlist(ppr_de),
   guides(color="none", fill="none") +
   facet_wrap(~lang,scales = "free_x",nrow = 3)
 
+sfig2_grey <- sfig2 + scale_color_grey() + scale_fill_grey()
 
-ggsave("plots/paper/perplexity.png",width = 8,height = 6)
+ggsave("plots/paper/Appendix_Figure_2.pdf",
+       sfig2,
+       width = 8,
+       height = 6,
+       dpi = 1200)
+
+ggsave("plots/paper/Appendix_Figure_2_GREY.pdf",
+       sfig2_grey,
+       width = 8,
+       height = 6,
+       dpi = 1200)
 
 
 ## ML Markov chain
@@ -483,7 +549,8 @@ max_ll(tp_t4,maxll = T)
 ##########################################
 
 
-resdf<-read_csv("results/res_foot_kfold.csv",col_names = c("lang","feature","sample_size","ngram","acc", "f1")) %>% 
+resdf<-read_csv("results/res_foot_kfold.csv",
+                col_names = c("lang","feature","sample_size","ngram","acc", "f1")) %>% 
   mutate(feature=ifelse(feature=="token","word",feature))
 
 
@@ -499,28 +566,54 @@ lang_labels <- c(
 
 p1 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
   group_by(lang,feature,sample_size,ngram) %>%
-  summarize(lo=quantile(acc,0.025),
-            hi=quantile(acc,0.975),
+  summarize(lo=mean(acc) - IQR(acc),
+            hi=mean(acc) + IQR(acc),
+    #lo=quantile(acc,0.025),
+            #hi=quantile(acc,0.975),
             acc=mean(acc)) %>% 
+  mutate(hi=ifelse(hi > 1, 1, hi),
+         lo=ifelse(lo < 0, 0, lo)) %>%
   ggplot(aes(sample_size, acc)) + 
+  #geom_errorbar(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
+  geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram),color=feature),alpha=0.2) +
   geom_line(aes(linetype=ngram,color=feature),linewidth=0.5) + 
-  #geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram)),fill="grey", alpha=0.3) +
   facet_wrap(~lang,labeller = as_labeller(lang_labels)) + 
   labs(x=NULL,y="Accuracy",title = "a. Classifying by foot type (2-5 classes)") + 
   scale_color_paletteer_d("basetheme::clean") + 
+ # scale_color_manual(values=oito) +
   theme_minimal() + 
   geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
   theme(strip.text = element_text(size=14),
         plot.background = element_rect(fill="white",color=NA),
         plot.title = element_text(size=10)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.1)) + guides(linetype="none", color="none") #+ 
-scale_x_log10()
+  scale_y_continuous(breaks = seq(0,1,by=0.1)) + guides(linetype="none", color="none") 
 
 p1
+ggsave(p1,file="plots/frontiers/res_meter.png",width = 8,height = 3)
+
+
+p1 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
+  group_by(lang,feature,sample_size,ngram) %>% 
+  mutate(iter=row_number()) %>%
+  ggplot(aes(sample_size, acc, colour = feature, linetype = ngram)) +
+  geom_line(aes(group = interaction(feature, ngram, iter)),
+            alpha = 0.04, linewidth = 0.25) +
+  stat_summary(fun = mean, geom = "line", linewidth = 0.5) +
+  facet_wrap(~lang,labeller = as_labeller(lang_labels)) + 
+  labs(x=NULL,y="Accuracy",title = "a. Classifying by foot type (2-5 classes)") + 
+  scale_color_paletteer_d("basetheme::clean") + 
+  # scale_color_manual(values=oito) +
+  theme_minimal() + 
+  geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
+  theme(strip.text = element_text(size=14),
+        plot.background = element_rect(fill="white",color=NA),
+        plot.title = element_text(size=10)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.1)) + guides(linetype="none", color="none") 
+
+
+
 resdf<-read_csv("results/res_form_kfold.csv",col_names = c("lang","feature","sample_size","ngram","acc","f1")) %>% 
   mutate(feature=ifelse(feature=="token","word",feature))
-
-
 
 xlines <- tibble(lang=c("cs", "de", "ru"),
                  baseline=c(0.0625, 0.2, 0.06))
@@ -537,7 +630,26 @@ p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>%
   #  geom_ribbon(aes(ymin=lo,ymax=hi,group=interaction(feature,ngram)),fill="grey", alpha=0.3) +
   facet_wrap(~lang,labeller = as_labeller(c("Czech", "German", "Russian"))) + 
   labs(x="Sample size (lines)",y="Accuracy",title = "b. Classifying by metrical form (5-17 classes)") + 
+# scale_color_paletteer_d("basetheme::clean") + 
+  scale_color_manual(values=oito) +
+  theme_minimal() + 
+  geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
+  theme(strip.text = element_blank(),
+        plot.background = element_rect(fill="white",color=NA,),plot.title = element_text(size=10),legend.position = "bottom") +
+  scale_y_continuous(breaks = seq(0,1,by=0.1))
+
+
+p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>% 
+  group_by(lang,feature,sample_size,ngram) %>% 
+  mutate(iter=row_number()) %>%
+  ggplot(aes(sample_size, acc, colour = feature, linetype = ngram)) +
+  geom_line(aes(group = interaction(feature, ngram, iter)),
+            alpha = 0.04, linewidth = 0.25) +
+  stat_summary(fun = mean, geom = "line", linewidth = 0.5) +
+  facet_wrap(~lang,labeller = as_labeller(c("Czech", "German", "Russian"))) + 
+  labs(x="Sample size (lines)",y="Accuracy",title = "b. Classifying by metrical form (5-17 classes)") + 
   scale_color_paletteer_d("basetheme::clean") + 
+  #scale_color_manual(values=oito) +
   theme_minimal() + 
   geom_hline(data=xlines,aes(yintercept=baseline),linetype=3) + 
   theme(strip.text = element_blank(),
@@ -545,10 +657,24 @@ p2 <- resdf %>% mutate(ngram=as.character(ngram)) %>%
   scale_y_continuous(breaks = seq(0,1,by=0.1))
 
 ## combine (god bless patchwork)
-p1/p2
+fig2 <- p1/p2
 
+f2p1_grey <- p1 + scale_color_grey()
+f2p2_grey <- p2 + scale_color_grey()
 
-ggsave("plots/paper/Figure_2.png",height=6,width=8,dpi = 300)
+fig2_grey <- f2p1_grey/f2p2_grey
+
+ggsave("plots/paper/Figure_2.pdf",
+       plot=fig2,
+       height=6,
+       width=8,
+       dpi = 1200)
+
+ggsave("plots/paper/Figure_2_GREY.pdf",
+       plot=fig2_grey,
+       height=6,
+       width=8,
+       dpi = 1200)
 
 
 ################################################
@@ -667,14 +793,25 @@ l <- vector(mode="list",length=8)
 ## Czech plots
 
 plots_cs <- make_plots_cm(lang="cs",l_lab = "Czech",type="NA")
-plots_cs[[1]] / plots_cs[[2]] / plots_cs[[3]] / plots_cs[[4]] / plots_cs[[5]] / plots_cs[[6]] / plots_cs[[7]] / plots_cs[[8]]
 
-ggsave("plots/CM_plots/CS_forms.png",width = 20,height = 32)
+cm_cs <- plots_cs[[1]] / plots_cs[[2]] / plots_cs[[3]] / plots_cs[[4]] / plots_cs[[5]] / plots_cs[[6]] / plots_cs[[7]] / plots_cs[[8]]
+
+ggsave("plots/CM_plots/CS_forms.png",plot=cm_cs, width = 20,height = 32)
 
 plots_cs <- make_plots_cm(lang="cs",l_lab = "Czech",type="foot")
-plots_cs[[1]] / plots_cs[[2]] / plots_cs[[3]] / plots_cs[[4]] / plots_cs[[5]] / plots_cs[[6]] / plots_cs[[7]] / plots_cs[[8]]
 
-ggsave("plots/CM_plots/CS_foot.png",width = 10,height = 20)
+cm_cs <- plots_cs[[1]] / plots_cs[[2]] / plots_cs[[3]] / plots_cs[[4]] / plots_cs[[5]] / plots_cs[[6]] / plots_cs[[7]] / plots_cs[[8]]
+
+
+ggsave("plots/CM_plots/CS_foot.png",plot=cm_cs, width = 20,height = 32)
+
+ggsave("plots/paper/Appendix_Figure_3a_cs.pdf",
+       plot=cm_cs, width = 20,height = 32,dpi=1200)
+
+cm_cs_grey <- (plots_cs[[1]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[2]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[3]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[4]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[5]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[6]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[7]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_cs[[8]] + scale_fill_gradient(low="grey15",high="grey90"))
+
+ggsave("plots/paper/Appendix_Figure_3a_cs_GREY.pdf",
+       plot=cm_cs_grey, width = 20,height = 32,dpi=1200)
 
 ## Russian plots
 
@@ -684,9 +821,18 @@ plots_ru[[1]] / plots_ru[[2]] / plots_ru[[3]] / plots_ru[[4]] / plots_ru[[5]] / 
 ggsave("plots/CM_plots/RU_forms.png",width = 20,height = 32)
 
 plots_ru <- make_plots_cm(lang="ru",l_lab = "Russian",type="foot")
-plots_ru[[1]] / plots_ru[[2]] / plots_ru[[3]] / plots_ru[[4]] / plots_ru[[5]] / plots_ru[[6]] / plots_ru[[7]] / plots_ru[[8]]
+cm_ru <- plots_ru[[1]] / plots_ru[[2]] / plots_ru[[3]] / plots_ru[[4]] / plots_ru[[5]] / plots_ru[[6]] / plots_ru[[7]] / plots_ru[[8]]
 
 ggsave("plots/CM_plots/RU_foot.png",width = 10,height = 20)
+
+ggsave("plots/paper/Appendix_Figure_3b_ru.pdf",
+       plot=cm_ru, width = 20,height = 32,dpi=1200)
+
+cm_ru_grey <- (plots_ru[[1]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[2]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[3]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[4]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[5]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[6]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[7]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_ru[[8]] + scale_fill_gradient(low="grey15",high="grey90"))
+
+ggsave("plots/paper/Appendix_Figure_3b_ru_GREY.pdf",
+       plot=cm_ru_grey, width = 20,height = 32,dpi=1200)
+
 
 ## German plots
 
@@ -696,6 +842,14 @@ plots_de[[1]] / plots_de[[2]] / plots_de[[3]] / plots_de[[4]] / plots_de[[5]] / 
 ggsave("plots/CM_plots/DE_forms.png",width = 10,height = 20)
 
 plots_de <- make_plots_cm(lang="de",l_lab = "German",type="foot",text_size = 3)
-plots_de[[1]] / plots_de[[2]] / plots_de[[3]] / plots_de[[4]] / plots_de[[5]] / plots_de[[6]] / plots_de[[7]] / plots_de[[8]]
+cm_de <- plots_de[[1]] / plots_de[[2]] / plots_de[[3]] / plots_de[[4]] / plots_de[[5]] / plots_de[[6]] / plots_de[[7]] / plots_de[[8]]
 
-ggsave("plots/CM_plots/DE_foot.png",width = 10,height = 20)
+ggsave("plots/CM_plots/DE_foot.png",plot = cm_de, width = 10,height = 20)
+
+ggsave("plots/paper/Appendix_Figure_3c_de.pdf",
+       plot=cm_de, width = 20,height = 32,dpi=1200)
+
+cm_de_grey <- (plots_de[[1]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[2]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[3]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[4]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[5]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[6]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[7]] + scale_fill_gradient(low="grey15",high="grey90")) / (plots_de[[8]] + scale_fill_gradient(low="grey15",high="grey90"))
+
+ggsave("plots/paper/Appendix_Figure_3b_ru_GREY.pdf",
+       plot=cm_de_grey, width = 20,height = 32,dpi=1200)

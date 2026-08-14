@@ -324,7 +324,7 @@ draw_scatter <- function(df, xpos, ypos, plt,filter=T) {
     geom_point(size=2,shape = 1,stroke = 1) + 
     theme_minimal() + 
     scale_color_manual(values=plt) + 
-    theme(axis.title = element_text(size=10), legend.title=element_blank(),plot.title = element_text(size=14),
+    theme(axis.title = element_text(size=12), legend.title=element_blank(),plot.title = element_text(size=14),
           plot.background = element_rect(fill="white",color=NA)) + labs(x=colnames(df)[xpos], y=colnames(df)[ypos])
   
 }
